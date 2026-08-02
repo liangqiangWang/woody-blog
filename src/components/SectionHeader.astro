@@ -1,0 +1,26 @@
+---
+import Icons from './Icons.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  number: string;
+  title: string;
+  /** 查看全部链接；以 / 开头或 http 开头均可 */
+  href?: string;
+  linkText?: string;
+}
+
+const { number, title, href, linkText = '查看全部' } = Astro.props;
+const resolved = href ? (href.startsWith('http') ? href : SITE.base + href) : undefined;
+---
+<div class="section-header reveal">
+  <div class="section-title-group">
+    <span class="section-number">{number}</span>
+    <h2 class="section-title">{title}</h2>
+  </div>
+  {resolved && (
+    <a href={resolved} class="section-link">
+      {linkText} <Icons name="arrow-right" size={15} />
+    </a>
+  )}
+</div>

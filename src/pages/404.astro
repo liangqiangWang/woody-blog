@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icons from '../components/Icons.astro';
+import { SITE } from '../consts';
+
+const base = SITE.base;
+---
+<BaseLayout title="页面未找到" description="你访问的页面不存在。" active="">
+  <section class="notfound">
+    <div class="notfound-code">404</div>
+    <h1 class="notfound-title">这个页面走丢了</h1>
+    <p class="notfound-desc">你访问的链接可能已被移动或删除。</p>
+    <div class="notfound-actions">
+      <a href={base + '/'} class="notfound-btn">
+        <Icons name="arrow-left" size={15} />回到首页
+      </a>
+      <a href={base + '/articles/'} class="notfound-btn ghost">浏览文章</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    max-width: 640px; margin: 0 auto;
+    padding: clamp(5rem, 12vw, 9rem) clamp(1.5rem, 5vw, 4rem);
+    text-align: center;
+  }
+  .notfound-code {
+    font-family: var(--font-brand);
+    font-size: clamp(5rem, 12vw, 8rem);
+    font-style: italic;
+    line-height: 1;
+    color: var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .notfound-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+  }
+  .notfound-desc {
+    color: var(--text-sub);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .notfound-actions {
+    display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;
+  }
+  .notfound-btn {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: var(--accent); color: #fff;
+    padding: 0.8rem 1.6rem;
+    border-radius: 100px;
+    font-size: 0.9rem; font-weight: 500;
+    transition: all 0.3s var(--ease);
+  }
+  .notfound-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+  .notfound-btn.ghost {
+    background: transparent; color: var(--text-sub);
+    border: 1px solid var(--border);
+  }
+  .notfound-btn.ghost:hover { color: var(--text); border-color: var(--accent); }
+  .notfound-btn svg { width: 15px; height: 15px; }
+</style>

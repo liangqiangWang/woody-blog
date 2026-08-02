@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Icons from '../components/Icons.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 导航高亮项 href，如 '/articles/' */
+  active?: string;
+}
+
+const { title, description, active } = Astro.props;
+const pageTitle = title ? `${title} · woody` : 'woody — 记录思考，分享创造';
+const metaDescription = description ?? SITE.description;
+const base = SITE.base;
+const canonical = Astro.url;
+---
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="icon" type="image/svg+xml" href={base + '/favicon.svg'} />
+    <link rel="canonical" href={canonical} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="page">
+      <Nav active={active} />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+      <Icons name="arrow-up" size={18} />
+    </button>
+    <script src="../scripts/site.ts"></script>
+    <slot name="scripts" />
+  </body>
+</html>

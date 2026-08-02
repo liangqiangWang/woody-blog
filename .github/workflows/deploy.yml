@@ -1,0 +1,55 @@
+# 将 Astro 静态站点部署到 GitHub Pages。
+# 触发条件：推送到 main 分支，或在仓库 Actions 页面手动运行(workflow_dispatch)。
+# base path 已在 astro.config.mjs 配好(/woody-blog)，CI 构建时自动生效，无需在此重复。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages 部署所需的最小权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一条部署流水线运行，避免互相覆盖；不中断进行中的部署。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # 与 .nvmrc 一致
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci # 需要 package-lock.json（已存在）
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

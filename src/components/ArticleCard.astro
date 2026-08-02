@@ -1,0 +1,51 @@
+---
+import Icons from './Icons.astro';
+import { SITE } from '../consts';
+import { formatDate, gradientFor, iconFor } from '../lib/format';
+
+interface Props {
+  article: {
+    id: string;
+    data: {
+      title: string;
+      date: Date;
+      desc: string;
+      category: string;
+      cover?: string;
+      readTime?: number;
+    };
+  };
+  /** 大图卡片（首页首篇） */
+  featured?: boolean;
+  class?: string;
+}
+
+const { article, featured = false, class: className = '' } = Astro.props;
+const { title, date, desc, category, readTime } = article.data;
+const href = `${SITE.base}/articles/${article.id}/`;
+// 首页不再展示真实封面，统一用色块 + 类别水印图标
+const coverStyle = `background:${gradientFor(title)}`;
+const watermarkIcon = iconFor(category, title);
+const minutes = readTime ? `${readTime} min` : '';
+---
+<a
+  href={href}
+  class:list={['article-card', { 'article-featured': featured }, className]}
+>
+  <div class="article-img">
+    <div class="article-img-placeholder" style={coverStyle}>
+      <div class="article-watermark">
+        <Icons name={watermarkIcon} size={72} />
+      </div>
+      <span class="article-category">{category}</span>
+    </div>
+  </div>
+  <div class="article-body">
+    <div class="article-meta">
+      <span class="article-meta-item"><Icons name="calendar" size={13} />{formatDate(date)}</span>
+      {minutes && <span class="article-meta-item"><Icons name="clock" size={13} />{minutes}</span>}
+    </div>
+    <h3 class="article-title">{title}</h3>
+    <p class="article-excerpt">{desc}</p>
+  </div>
+</a>

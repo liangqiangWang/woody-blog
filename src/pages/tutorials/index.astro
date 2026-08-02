@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TutorialCard from '../../components/TutorialCard.astro';
+import { getCollection } from 'astro:content';
+import { groupByTutorial, landingOf, chaptersOf } from '../../lib/tutorials';
+
+const all = (await getCollection('tutorials')).filter((e) => !e.data.draft);
+const map = groupByTutorial(all);
+const names = [...map.keys()].sort();
+const tutorials = names.map((name) => ({
+  name,
+  landing: landingOf(all, name)!,
+  chapterCount: chaptersOf(all, name).length,
+}));
+---
+<BaseLayout title="教程系列" description="体系化的章节式教程，按文件名序号循序渐进。" active="/tutorials/">
+  <div class="container">
+    <header class="page-header">
+      <div class="page-header-label">Tutorials</div>
+      <h1 class="page-header-title">教程系列</h1>
+      <p class="page-header-desc">每个教程 = 一个目录 + 多个 Markdown 章节，目录自动生成章节索引。</p>
+    </header>
+
+    {tutorials.length > 0 ? (
+      <div class="tutorials-list">
+        {tutorials.map(({ landing, chapterCount }, i) => (
+          <TutorialCard
+            tutorial={landing}
+            chapterCount={chapterCount}
+            index={i}
+            class={`reveal reveal-delay-${(i % 4) + 1}`}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="empty-hint">还没有教程。</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .tutorials-list { padding-bottom: clamp(3rem, 6vw, 5rem); }
+  .empty-hint { text-align: center; color: var(--text-muted); padding: 4rem 0; }
+</style>

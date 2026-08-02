@@ -1,0 +1,67 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Icons from '../components/Icons.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { SITE } from '../consts';
+import { formatDate } from '../lib/format';
+import '../styles/article.css';
+
+interface Props {
+  entry: {
+    id: string;
+    data: {
+      title: string;
+      date: Date;
+      desc: string;
+      category: string;
+      tags?: string[];
+      layout?: 'standard' | 'mosaic' | 'immersive';
+      cover?: string;
+      readTime?: number;
+    };
+  };
+}
+
+const { entry } = Astro.props;
+const { title, date, desc, category, tags = [], layout = 'standard', cover, readTime } = entry.data;
+const base = SITE.base;
+---
+<BaseLayout title={title} description={desc} active="/articles/">
+  <article class:list={['article-page', `article-${layout}`]}>
+    <header class="article-header">
+      <div class="article-header-inner">
+        <a href={`${base}/articles/`} class="article-back">
+          <Icons name="arrow-left" size={14} />文章
+        </a>
+        <div class="article-header-meta">
+          <span class="article-header-category">{category}</span>
+          <span class="article-meta-item"><Icons name="calendar" size={13} />{formatDate(date)}</span>
+          {readTime && (
+            <span class="article-meta-item"><Icons name="clock" size={13} />{readTime} min</span>
+          )}
+        </div>
+        <h1 class="article-header-title">{title}</h1>
+        {desc && <p class="article-header-desc">{desc}</p>}
+      </div>
+    </header>
+
+    {cover && layout !== 'mosaic' && (
+      <div class="article-cover">
+        <img src={base + cover} alt={title} loading="eager" />
+      </div>
+    )}
+
+    <div class="article-body">
+      <div class="article-prose">
+        <slot />
+      </div>
+    </div>
+
+    {tags.length > 0 && (
+      <footer class="article-tags">
+        {tags.map((t) => <span class="tool-tag">{t}</span>)}
+      </footer>
+    )}
+  </article>
+  <Lightbox />
+</BaseLayout>

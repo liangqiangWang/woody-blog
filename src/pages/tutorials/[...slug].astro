@@ -1,0 +1,35 @@
+---
+import TutorialLayout from '../../layouts/TutorialLayout.astro';
+import { getCollection, render } from 'astro:content';
+import { groupByTutorial, isLanding, chaptersOf, adjacentOf, landingOf } from '../../lib/tutorials';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('tutorials')).filter((e) => !e.data.draft);
+  const map = groupByTutorial(all);
+  const paths: { params: { slug: string }; props: { entry: CollectionEntry<'tutorials'> } }[] = [];
+  for (const [name, list] of map) {
+    for (const e of list) {
+      if (isLanding(e.id)) {
+        // 落地页 → /tutorials/<name>/（rest 参数用字符串）
+        paths.push({ params: { slug: name }, props: { entry: e } });
+      } else {
+        // 章节 → /tutorials/<name>/<chapter>/
+        paths.push({ params: { slug: `${name}/${e.id.split('/')[1]}` }, props: { entry: e } });
+      }
+    }
+  }
+  return paths;
+}
+
+const { entry } = Astro.props;
+const all = (await getCollection('tutorials')).filter((e) => !e.data.draft);
+const name = entry.id.split('/')[0];
+const landing = landingOf(all, name)!;
+const chapters = chaptersOf(all, name);
+const { Content, headings } = await render(entry);
+const { prev, next } = adjacentOf(all, entry.id);
+---
+<TutorialLayout entry={entry} landing={landing} chapters={chapters} headings={headings} prev={prev} next={next}>
+  <Content />
+</TutorialLayout>

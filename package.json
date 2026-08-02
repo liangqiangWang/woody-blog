@@ -1,0 +1,30 @@
+{
+  "name": "woody-blog",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro",
+    "new:article": "node scripts/new-article.mjs",
+    "new:tool": "node scripts/new-tool.mjs",
+    "new:tutorial": "node scripts/new-tutorial.mjs"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.6",
+    "unist-util-visit": "^5.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
+  }
+}

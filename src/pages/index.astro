@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import ToolCard from '../components/ToolCard.astro';
+import TutorialCard from '../components/TutorialCard.astro';
+import { getCollection } from 'astro:content';
+import { readTimeOf } from '../lib/format';
+
+// 文章：按日期倒序，补算未显式给出的阅读时长
+const allArticles = (await getCollection('articles'))
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const articles = allArticles.map((a) => ({
+  ...a,
+  data: {
+    ...a.data,
+    readTime: a.data.readTime ?? (a.body ? readTimeOf(a.body) : undefined),
+  },
+}));
+
+// 工具
+const tools = (await getCollection('tools'))
+  .filter((t) => !t.data.draft)
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+// 教程：按教程名分组，meta 取各组的 index 条目
+// 注意：首页教程区已隐藏（暂无合适内容，2026-08），以下数据计算保留，供恢复时直接使用；详情见 CLAUDE.md
+const tutorialsAll = (await getCollection('tutorials')).filter((t) => !t.data.draft);
+const metaByTutorial = new Map<string, (typeof tutorialsAll)[number]>();
+for (const e of tutorialsAll) {
+  const [name] = e.id.split('/');
+  if (e.id.endsWith('/index') && !metaByTutorial.has(name)) metaByTutorial.set(name, e);
+}
+const tutorialGroups = [...metaByTutorial.values()].sort((a, b) => a.id.localeCompare(b.id));
+const chapterCountOf = (name: string) =>
+  tutorialsAll.filter((e) => e.id.startsWith(name + '/') && !e.id.endsWith('/index')).length;
+
+const hero = {
+  articles: articles.length,
+  tools: tools.length,
+  tutorials: tutorialGroups.length,
+};
+
+const homeArticles = articles.slice(0, 5);
+const homeTools = tools.slice(0, 6);
+const homeTutorials = tutorialGroups.slice(0, 4);
+---
+<BaseLayout active="/">
+  <Hero articles={hero.articles} tools={hero.tools} tutorials={hero.tutorials} />
+
+  <section class="section" id="articles">
+    <SectionHeader number="01" title="文章" href="/articles/" />
+    {homeArticles.length > 0 && (
+      <div class="home-articles">
+        {homeArticles.map((a, i) => (
+          <ArticleCard article={a} class={`reveal reveal-delay-${i + 1}`} />
+        ))}
+      </div>
+    )}
+  </section>
+
+  <section class="section" id="tools">
+    <SectionHeader number="02" title="工具" href="/tools/" />
+    <div class="tools-grid">
+      {homeTools.map((t, i) => (
+        <ToolCard tool={t} class={`reveal reveal-delay-${(i % 3) + 1}`} />
+      ))}
+    </div>
+  </section>
+
+  <!-- 教程区块：暂无合适内容，暂从首页隐藏（2026-08）。放开时去掉下面注释、恢复 <section id="tutorials"> 即可。 -->
+  <!--
+  <section class="section" id="tutorials">
+    <SectionHeader number="03" title="教程" href="/tutorials/" />
+    <div class="tutorials-list">
+      {homeTutorials.map((t, i) => (
+        <TutorialCard
+          tutorial={t}
+          index={i}
+          chapterCount={chapterCountOf(t.id.split('/')[0])}
+          class={`reveal reveal-delay-${(i % 4) + 1}`}
+        />
+      ))}
+    </div>
+  </section>
+  -->
+</BaseLayout>

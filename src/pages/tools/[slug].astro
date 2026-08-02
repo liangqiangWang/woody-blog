@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icons from '../../components/Icons.astro';
+import { SITE } from '../../consts';
+import { hexToRgba } from '../../lib/format';
+import { getCollection, getEntry, render } from 'astro:content';
+import '../../styles/article.css';
+
+// doc 型工具的纯介绍页面。app 型由 tools/<slug>/index.astro 静态目录覆盖，不在此枚举。
+export async function getStaticPaths() {
+  const docs = (await getCollection('tools')).filter((t) => !t.data.draft && t.data.kind === 'doc');
+  return docs.map((t) => ({ params: { slug: t.id } }));
+}
+
+const { slug } = Astro.params;
+const entry = await getEntry('tools', slug ?? '');
+if (!entry) return Astro.redirect('/404');
+const { Content } = await render(entry);
+const { name, desc, icon, tags = [], accent = '#bf4a37' } = entry.data;
+const accentBg = hexToRgba(accent, 0.07);
+---
+<BaseLayout title={name} description={desc} active="/tools/">
+  <article class="tool-doc">
+    <header class="tool-doc-header">
+      <div class="tool-doc-head-inner">
+        <a href={`${SITE.base}/tools/`} class="article-back">
+          <Icons name="arrow-left" size={14} />工具
+        </a>
+        <div class="tool-doc-icon" style={`--card-accent:${accent};--card-accent-bg:${accentBg}`}>
+          <Icons name={icon} size={24} />
+        </div>
+        <h1 class="tool-doc-title">{name}</h1>
+        <p class="tool-doc-desc">{desc}</p>
+        {tags.length > 0 && (
+          <div class="tool-tags">
+            {tags.map((t) => <span class="tool-tag">{t}</span>)}
+          </div>
+        )}
+      </div>
+    </header>
+    <div class="article-body">
+      <div class="article-prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

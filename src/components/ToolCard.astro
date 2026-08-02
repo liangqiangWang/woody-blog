@@ -1,0 +1,38 @@
+---
+import Icons from './Icons.astro';
+import { SITE } from '../consts';
+import { hexToRgba } from '../lib/format';
+
+interface Props {
+  tool: {
+    id: string;
+    data: {
+      name: string;
+      desc: string;
+      icon: string;
+      accent?: string;
+      tags?: string[];
+    };
+  };
+  class?: string;
+}
+
+const { tool, class: className = '' } = Astro.props;
+const { name, desc, icon, accent = '#bf4a37', tags = [] } = tool.data;
+const href = `${SITE.base}/tools/${tool.id}/`;
+const accentBg = hexToRgba(accent, 0.07);
+---
+<a
+  href={href}
+  class:list={['tool-card', className]}
+  style={`--card-accent:${accent};--card-accent-bg:${accentBg}`}
+>
+  <div class="tool-icon"><Icons name={icon} size={22} /></div>
+  <h3 class="tool-name">{name}</h3>
+  <p class="tool-desc">{desc}</p>
+  {tags.length > 0 && (
+    <div class="tool-tags">
+      {tags.map((t) => <span class="tool-tag">{t}</span>)}
+    </div>
+  )}
+</a>

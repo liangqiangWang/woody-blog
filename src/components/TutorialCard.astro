@@ -1,0 +1,43 @@
+---
+import Icons from './Icons.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  tutorial: {
+    id: string;
+    data: {
+      title: string;
+      desc: string;
+      level?: 'beginner' | 'intermediate' | 'advanced';
+    };
+  };
+  /** 章节数（不含落地页） */
+  chapterCount: number;
+  /** 序号从 0 开始 */
+  index: number;
+  class?: string;
+}
+
+const { tutorial, chapterCount, index, class: className = '' } = Astro.props;
+const { title, desc, level = 'intermediate' } = tutorial.data;
+// 落地页地址取教程名（id 形如 <t>/index，去掉尾部）
+const tutorialName = tutorial.id.split('/')[0];
+const href = `${SITE.base}/tutorials/${tutorialName}/`;
+const LEVEL_LABEL: Record<string, string> = {
+  beginner: '入门',
+  intermediate: '中级',
+  advanced: '进阶',
+};
+const num = String(index + 1).padStart(2, '0');
+---
+<a href={href} class:list={['tutorial-card', className]}>
+  <span class="tutorial-number">{num}</span>
+  <div class="tutorial-info">
+    <h3 class="tutorial-title">{title}</h3>
+    <p class="tutorial-desc">{desc}</p>
+  </div>
+  <span class:list={['tutorial-badge', `badge-${level}`]}>{LEVEL_LABEL[level]}</span>
+  <div class="tutorial-meta">
+    <span class="tutorial-meta-item"><Icons name="layers" size={13} />{chapterCount} 章节</span>
+  </div>
+</a>

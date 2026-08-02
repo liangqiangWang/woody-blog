@@ -1,0 +1,58 @@
+---
+interface Props {
+  articles: number;
+  tools: number;
+  tutorials: number;
+}
+
+const { articles, tools, tutorials } = Astro.props;
+---
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-label">Personal Blog &amp; Toolbox</div>
+      <h1 class="hero-title">
+        <span class="hero-title-line">woody 的博客</span>
+        <span class="hero-title-line" style="color: var(--accent);">偶尔写点东西</span>
+      </h1>
+      <p class="hero-desc">
+        记录 AI Testing 学习探索过程中的想法
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-value">{articles}</span>
+          <span class="hero-stat-label">篇文章</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">{tools}</span>
+          <span class="hero-stat-label">个工具</span>
+        </div>
+        <!-- 教程统计：暂从首页隐藏（2026-08），放开时取消本注释即可 -->
+        <!--
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">{tutorials}</span>
+          <span class="hero-stat-label">篇教程</span>
+        </div>
+        -->
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-circle-outer">
+        <div class="hero-circle-mid"></div>
+        <div class="hero-circle-inner"></div>
+        <div class="hero-dot hero-dot-1"></div>
+        <div class="hero-dot hero-dot-2"></div>
+        <div class="hero-dot hero-dot-3"></div>
+        <div class="hero-dot hero-dot-4"></div>
+        <div class="hero-line-deco hero-line-1"></div>
+        <div class="hero-line-deco hero-line-2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span class="scroll-text">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>

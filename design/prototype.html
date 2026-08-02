@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨白 — 记录思考，分享创造</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        /* ===== Reset & Variables ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #f8f6f3;
+            --surface: #ffffff;
+            --text: #1d1d1f;
+            --text-sub: #6e6e73;
+            --text-muted: #aeaeb2;
+            --accent: #bf4a37;
+            --accent-hover: #a83d2b;
+            --accent-bg: rgba(191, 74, 55, 0.06);
+            --border: #e5e0d8;
+            --border-light: #f0ece6;
+            --font-serif: 'Noto Serif SC', 'Georgia', serif;
+            --font-sans: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+            --font-brand: 'Instrument Serif', 'Georgia', serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+        }
+
+        html { scroll-behavior: smooth; font-size: 16px; }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.022;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+
+        h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 600; line-height: 1.3; }
+        ::selection { background: var(--accent); color: white; }
+
+        /* ===== Navigation ===== */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 0 clamp(1.5rem, 5vw, 4rem);
+            height: 72px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.4s var(--ease);
+        }
+        .nav.scrolled {
+            background: rgba(248, 246, 243, 0.82);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .nav-logo {
+            font-family: var(--font-serif);
+            font-size: 1.25rem; font-weight: 700;
+            letter-spacing: 0.02em;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .nav-logo-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .nav-links {
+            display: flex; align-items: center; gap: 2.5rem;
+            list-style: none;
+        }
+        .nav-link {
+            font-size: 0.875rem; font-weight: 500;
+            color: var(--text-sub);
+            transition: color var(--ease);
+            display: flex; align-items: center; gap: 0.4rem;
+            position: relative;
+        }
+        .nav-link::after {
+            content: ''; position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 1.5px;
+            background: var(--accent);
+            transition: width 0.3s var(--ease);
+        }
+        .nav-link:hover { color: var(--text); }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link i { width: 15px; height: 15px; }
+        .nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .nav-search {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-sub);
+            transition: all var(--ease);
+        }
+        .nav-search:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-bg);
+        }
+        .nav-search i { width: 16px; height: 16px; }
+        .mobile-menu-btn {
+            display: none;
+            width: 36px; height: 36px;
+            border: none; background: transparent;
+            cursor: pointer; color: var(--text);
+        }
+        .mobile-menu-btn i { width: 20px; height: 20px; }
+
+        /* ===== Hero ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center;
+            padding: 0 clamp(1.5rem, 5vw, 4rem);
+            position: relative; overflow: hidden;
+        }
+        .hero-inner {
+            max-width: 1200px; margin: 0 auto; width: 100%;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4rem; align-items: center;
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-label {
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 0.75rem;
+            opacity: 0; animation: fadeUp 0.8s var(--ease) 0.1s forwards;
+        }
+        .hero-label::before {
+            content: ''; width: 32px; height: 1.5px;
+            background: var(--accent);
+        }
+        .hero-title {
+            font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+            font-weight: 700; line-height: 1.3;
+            margin-bottom: 2rem;
+        }
+        .hero-title-line {
+            display: block;
+            opacity: 0; transform: translateY(24px);
+            animation: fadeUp 0.8s var(--ease) forwards;
+        }
+        .hero-title-line:nth-child(2) { animation-delay: 0.2s; }
+        .hero-title-line:nth-child(3) { animation-delay: 0.4s; }
+        .hero-desc {
+            font-size: 1.05rem;
+            color: var(--text-sub);
+            max-width: 460px; line-height: 1.85;
+            margin-bottom: 2.5rem;
+            opacity: 0; animation: fadeUp 0.8s var(--ease) 0.55s forwards;
+        }
+        .hero-stats {
+            display: flex; gap: 2rem;
+            opacity: 0; animation: fadeUp 0.8s var(--ease) 0.7s forwards;
+        }
+        .hero-stat { display: flex; flex-direction: column; }
+        .hero-stat-value {
+            font-family: var(--font-serif);
+            font-size: 1.75rem; font-weight: 700;
+        }
+        .hero-stat-label {
+            font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;
+        }
+        .hero-stat-divider {
+            width: 1px; background: var(--border);
+            align-self: stretch;
+        }
+
+        /* Hero decorative */
+        .hero-visual {
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; animation: fadeIn 1.2s var(--ease) 0.4s forwards;
+        }
+        .hero-circle-outer {
+            width: 340px; height: 340px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+            animation: floatSlow 8s ease-in-out infinite;
+        }
+        .hero-circle-mid {
+            width: 240px; height: 240px;
+            border: 1px dashed var(--border-light);
+            border-radius: 50%;
+            position: absolute;
+            top: calc(50% - 120px); left: calc(50% - 120px);
+            animation: spinSlow 30s linear infinite;
+        }
+        .hero-circle-inner {
+            width: 140px; height: 140px;
+            border: 1px solid var(--border-light);
+            border-radius: 50%;
+            position: absolute;
+            top: calc(50% - 70px); left: calc(50% - 70px);
+            animation: floatY 6s ease-in-out infinite reverse;
+        }
+        .hero-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .hero-dot-1 {
+            background: var(--accent);
+            top: -6px; left: 50%; transform: translateX(-50%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        .hero-dot-2 {
+            background: var(--text);
+            bottom: 15%; right: -4px;
+            width: 8px; height: 8px;
+            animation: pulse 4s ease-in-out 1s infinite;
+        }
+        .hero-dot-3 {
+            background: var(--border);
+            top: 35%; left: -18px;
+            width: 6px; height: 6px;
+        }
+        .hero-dot-4 {
+            background: var(--accent);
+            opacity: 0.4;
+            bottom: 10%; left: 25%;
+            width: 5px; height: 5px;
+            animation: pulse 3.5s ease-in-out 0.5s infinite;
+        }
+        .hero-line-deco {
+            position: absolute; background: var(--border);
+        }
+        .hero-line-1 { width: 1px; height: 50px; top: -35px; right: 28%; }
+        .hero-line-2 { width: 35px; height: 1px; bottom: 18%; left: -25px; }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem; left: 50%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+            opacity: 0; animation: fadeIn 1s var(--ease) 1.2s forwards;
+        }
+        .scroll-text {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .scroll-line {
+            width: 1px; height: 36px;
+            background: var(--border);
+            position: relative; overflow: hidden;
+        }
+        .scroll-line::after {
+            content: ''; position: absolute;
+            top: -100%; left: 0;
+            width: 100%; height: 100%;
+            background: var(--accent);
+            animation: scrollLine 2s ease-in-out infinite;
+        }
+
+        /* ===== Section Common ===== */
+        .section {
+            padding: clamp(5rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+            max-width: 1200px; margin: 0 auto;
+        }
+        .section-header {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .section-title-group {
+            display: flex; align-items: baseline; gap: 1rem;
+        }
+        .section-number {
+            font-family: var(--font-brand);
+            font-size: 0.95rem; color: var(--text-muted); font-style: italic;
+        }
+        .section-title {
+            font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 700;
+        }
+        .section-link {
+            font-size: 0.85rem; font-weight: 500;
+            color: var(--accent);
+            display: flex; align-items: center; gap: 0.35rem;
+            transition: gap 0.3s var(--ease);
+        }
+        .section-link:hover { gap: 0.65rem; }
+        .section-link i { width: 15px; height: 15px; }
+
+        /* ===== Reveal Animation ===== */
+        .reveal {
+            opacity: 0; transform: translateY(28px);
+            transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.08s; }
+        .reveal-delay-2 { transition-delay: 0.16s; }
+        .reveal-delay-3 { transition-delay: 0.24s; }
+        .reveal-delay-4 { transition-delay: 0.32s; }
+        .reveal-delay-5 { transition-delay: 0.40s; }
+        .reveal-delay-6 { transition-delay: 0.48s; }
+
+        /* ===== Article Cards ===== */
+        .articles-featured { margin-bottom: 2rem; }
+        .article-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            transition: all 0.4s var(--ease);
+            cursor: pointer;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-color: var(--border);
+        }
+        .article-featured { display: grid; grid-template-columns: 1.15fr 1fr; }
+        .article-img { overflow: hidden; position: relative; }
+        .article-img-placeholder {
+            width: 100%; height: 100%; min-height: 220px;
+            position: relative;
+            transition: transform 0.6s var(--ease);
+        }
+        .article-card:hover .article-img-placeholder { transform: scale(1.03); }
+        .article-category {
+            position: absolute; top: 1rem; left: 1rem;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(8px);
+            padding: 0.2rem 0.7rem;
+            border-radius: 100px;
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.03em;
+            color: var(--text);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .article-body {
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .article-meta {
+            display: flex; align-items: center; gap: 1rem;
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-bottom: 0.85rem;
+        }
+        .article-meta-item { display: flex; align-items: center; gap: 0.3rem; }
+        .article-meta-item i { width: 13px; height: 13px; }
+        .article-title {
+            font-size: clamp(1.2rem, 2vw, 1.45rem);
+            font-weight: 600; margin-bottom: 0.7rem; line-height: 1.45;
+            transition: color 0.3s var(--ease);
+        }
+        .article-card:hover .article-title { color: var(--accent); }
+        .article-excerpt {
+            font-size: 0.88rem; color: var(--text-sub);
+            line-height: 1.75;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .article-grid .article-img-placeholder { height: 175px; }
+        .article-grid .article-body { padding: 1.2rem 1.25rem; }
+        .article-grid .article-excerpt { -webkit-line-clamp: 2; font-size: 0.84rem; }
+
+        /* ===== Tool Cards ===== */
+        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .tool-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: clamp(1.5rem, 2.5vw, 2rem);
+            border: 1px solid var(--border-light);
+            transition: all 0.4s var(--ease);
+            cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .tool-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--card-accent, var(--accent));
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.4s var(--ease);
+        }
+        .tool-card:hover::before { transform: scaleX(1); }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-color: var(--border);
+        }
+        .tool-icon {
+            width: 48px; height: 48px;
+            border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.25rem;
+            color: var(--card-accent, var(--accent));
+            background: var(--card-accent-bg, var(--accent-bg));
+            transition: transform 0.35s var(--ease);
+        }
+        .tool-card:hover .tool-icon { transform: scale(1.1) rotate(-3deg); }
+        .tool-icon i { width: 22px; height: 22px; }
+        .tool-name {
+            font-family: var(--font-serif);
+            font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem;
+        }
+        .tool-desc {
+            font-size: 0.85rem; color: var(--text-sub);
+            line-height: 1.65; margin-bottom: 1.25rem;
+        }
+        .tool-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .tool-tag {
+            font-size: 0.68rem; font-weight: 600;
+            padding: 0.18rem 0.6rem;
+            border-radius: 100px;
+            background: var(--bg);
+            color: var(--text-sub);
+            border: 1px solid var(--border-light);
+            letter-spacing: 0.02em;
+        }
+
+        /* ===== Tutorial Cards ===== */
+        .tutorials-list { display: flex; flex-direction: column; gap: 0.85rem; }
+        .tutorial-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: clamp(1.2rem, 2.5vw, 1.6rem) clamp(1.5rem, 3vw, 2rem);
+            border: 1px solid var(--border-light);
+            display: grid;
+            grid-template-columns: 56px 1fr auto auto;
+            align-items: center; gap: 1.5rem;
+            transition: all 0.4s var(--ease);
+            cursor: pointer;
+        }
+        .tutorial-card:hover {
+            transform: translateX(8px);
+            border-color: var(--border);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        }
+        .tutorial-number {
+            font-family: var(--font-brand);
+            font-size: 2.2rem; font-style: italic;
+            color: var(--border);
+            text-align: center;
+            transition: color 0.3s var(--ease);
+            line-height: 1;
+        }
+        .tutorial-card:hover .tutorial-number { color: var(--accent); }
+        .tutorial-info { min-width: 0; }
+        .tutorial-title {
+            font-family: var(--font-serif);
+            font-size: 1.08rem; font-weight: 600;
+            margin-bottom: 0.3rem;
+            transition: color 0.3s var(--ease);
+        }
+        .tutorial-card:hover .tutorial-title { color: var(--accent); }
+        .tutorial-desc {
+            font-size: 0.82rem; color: var(--text-sub); line-height: 1.55;
+        }
+        .tutorial-badge {
+            font-size: 0.68rem; font-weight: 600;
+            padding: 0.28rem 0.7rem;
+            border-radius: 100px; white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .badge-beginner { background: #e8f5e9; color: #2e7d32; }
+        .badge-intermediate { background: #fff3e0; color: #e65100; }
+        .badge-advanced { background: #fce4ec; color: #c62828; }
+        .tutorial-meta {
+            display: flex; flex-direction: column;
+            align-items: flex-end; gap: 0.25rem;
+            font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;
+        }
+        .tutorial-meta-item { display: flex; align-items: center; gap: 0.25rem; }
+        .tutorial-meta-item i { width: 13px; height: 13px; }
+
+        /* ===== Footer ===== */
+        .footer {
+            padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+            border-top: 1px solid var(--border-light);
+            max-width: 1200px; margin: 0 auto;
+        }
+        .footer-inner {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr 1fr;
+            gap: 3rem; margin-bottom: 3rem;
+        }
+        .footer-brand {
+            font-family: var(--font-serif);
+            font-size: 1.4rem; font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .footer-tagline {
+            font-size: 0.88rem; color: var(--text-sub);
+            line-height: 1.75; max-width: 260px;
+        }
+        .footer-col-title {
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 1.2rem;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+        .footer-link {
+            font-size: 0.85rem; color: var(--text-sub);
+            transition: color 0.3s var(--ease);
+        }
+        .footer-link:hover { color: var(--accent); }
+        .footer-bottom {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.78rem; color: var(--text-muted);
+        }
+        .footer-socials { display: flex; gap: 0.75rem; }
+        .footer-social {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-sub);
+            transition: all var(--ease);
+        }
+        .footer-social:hover {
+            border-color: var(--accent); color: var(--accent);
+            background: var(--accent-bg);
+            transform: translateY(-2px);
+        }
+        .footer-social i { width: 16px; height: 16px; }
+
+        /* ===== Back to Top ===== */
+        .back-to-top {
+            position: fixed; bottom: 2rem; right: 2rem;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-sub);
+            opacity: 0; transform: translateY(10px);
+            transition: all 0.35s var(--ease);
+            z-index: 99;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+        .back-to-top:hover {
+            color: var(--accent); border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .back-to-top i { width: 18px; height: 18px; }
+
+        /* ===== Keyframes ===== */
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1.5deg); }
+        }
+        @keyframes floatY {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes spinSlow {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+        @keyframes scrollLine {
+            0% { top: -100%; }
+            50% { top: 100%; }
+            100% { top: 100%; }
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .hero-inner { grid-template-columns: 1fr; text-align: center; }
+            .hero-desc { margin: 0 auto 2.5rem; }
+            .hero-stats { justify-content: center; }
+            .hero-label { justify-content: center; }
+            .hero-label::before { display: none; }
+            .hero-visual { display: none; }
+            .scroll-indicator { display: none; }
+            .article-featured { grid-template-columns: 1fr; }
+            .article-featured .article-img-placeholder { min-height: 240px; }
+            .footer-inner { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+            .article-grid { grid-template-columns: 1fr; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .tutorial-card {
+                grid-template-columns: 48px 1fr;
+                gap: 1rem;
+            }
+            .tutorial-badge, .tutorial-meta { display: none; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 1.5rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-logo">
+            墨白<span class="nav-logo-dot"></span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#articles" class="nav-link"><i data-lucide="pen-line"></i>文章</a></li>
+            <li><a href="#tools" class="nav-link"><i data-lucide="wrench"></i>工具</a></li>
+            <li><a href="#tutorials" class="nav-link"><i data-lucide="book-open"></i>教程</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="nav-search" aria-label="搜索"><i data-lucide="search"></i></button>
+            <button class="mobile-menu-btn" aria-label="菜单"><i data-lucide="menu"></i></button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <div class="hero-label">Personal Blog &amp; Toolbox</div>
+                <h1 class="hero-title">
+                    <span class="hero-title-line">以文字记录思考，</span>
+                    <span class="hero-title-line">用工具解决问题，</span>
+                    <span class="hero-title-line" style="color: var(--accent);">让知识自由流动。</span>
+                </h1>
+                <p class="hero-desc">
+                    这里是我的数字花园——记录技术探索中的思考与感悟，
+                    分享自研的实用工具，以及体系化的教程内容。
+                </p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value">42</span>
+                        <span class="hero-stat-label">篇文章</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value">8</span>
+                        <span class="hero-stat-label">个工具</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value">16</span>
+                        <span class="hero-stat-label">篇教程</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-circle-outer">
+                    <div class="hero-circle-mid"></div>
+                    <div class="hero-circle-inner"></div>
+                    <div class="hero-dot hero-dot-1"></div>
+                    <div class="hero-dot hero-dot-2"></div>
+                    <div class="hero-dot hero-dot-3"></div>
+                    <div class="hero-dot hero-dot-4"></div>
+                    <div class="hero-line-deco hero-line-1"></div>
+                    <div class="hero-line-deco hero-line-2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span class="scroll-text">Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Articles -->
+    <section class="section" id="articles">
+        <div class="section-header reveal">
+            <div class="section-title-group">
+                <span class="section-number">01</span>
+                <h2 class="section-title">文章</h2>
+            </div>
+            <a href="#" class="section-link">查看全部 <i data-lucide="arrow-right"></i></a>
+        </div>
+
+        <div class="articles-featured reveal reveal-delay-1">
+            <div class="article-card article-featured">
+                <div class="article-img">
+                    <div class="article-img-placeholder" style="background: linear-gradient(135deg, #e8ddd3 0%, #d4b896 50%, #c9a882 100%);">
+                        <span class="article-category">设计系统</span>
+                    </div>
+                </div>
+                <div class="article-body">
+                    <div class="article-meta">
+                        <span class="article-meta-item"><i data-lucide="calendar"></i>2026.07.18</span>
+                        <span class="article-meta-item"><i data-lucide="clock"></i>12 min</span>
+                    </div>
+                    <h3 class="article-title">从零构建一套完整的设计系统</h3>
+                    <p class="article-excerpt">
+                        设计系统不仅仅是组件库。本文从设计 Token 定义、组件规范、文档体系三个维度，
+                        详细记录了如何从零开始搭建一套可扩展、可维护的设计系统，并附上踩坑实录。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="article-grid">
+            <div class="article-card reveal reveal-delay-2">
+                <div class="article-img">
+                    <div class="article-img-placeholder" style="background: linear-gradient(135deg, #d3dde8 0%, #a8c4de 100%);">
+                        <span class="article-category">React</span>
+                    </div>
+                </div>
+                <div class="article-body">
+                    <div class="article-meta">
+                        <span class="article-meta-item"><i data-lucide="calendar"></i>2026.07.10</span>
+                        <span class="article-meta-item"><i data-lucide="clock"></i>8 min</span>
+                    </div>
+                    <h3 class="article-title">React 19 新特性深度解析</h3>
+                    <p class="article-excerpt">Server Components、Actions、use() Hook——逐一拆解 React 19 的核心变化。</p>
+                </div>
+            </div>
+            <div class="article-card reveal reveal-delay-3">
+                <div class="article-img">
+                    <div class="article-img-placeholder" style="background: linear-gradient(135deg, #d3e8d8 0%, #96d4a0 100%);">
+                        <span class="article-category">CSS</span>
+                    </div>
+                </div>
+                <div class="article-body">
+                    <div class="article-meta">
+                        <span class="article-meta-item"><i data-lucide="calendar"></i>2026.06.28</span>
+                        <span class="article-meta-item"><i data-lucide="clock"></i>6 min</span>
+                    </div>
+                    <h3 class="article-title">CSS 容器查询实战指南</h3>
+                    <p class="article-excerpt">告别媒体查询的局限性，用容器查询实现真正的组件级响应式设计。</p>
+                </div>
+            </div>
+            <div class="article-card reveal reveal-delay-4">
+                <div class="article-img">
+                    <div class="article-img-placeholder" style="background: linear-gradient(135deg, #ddd3e8 0%, #c4a0d4 100%);">
+                        <span class="article-category">TypeScript</span>
+                    </div>
+                </div>
+                <div class="article-body">
+                    <div class="article-meta">
+                        <span class="article-meta-item"><i data-lucide="calendar"></i>2026.06.15</span>
+                        <span class="article-meta-item"><i data-lucide="clock"></i>10 min</span>
+                    </div>
+                    <h3 class="article-title">TypeScript 高级类型体操</h3>
+                    <p class="article-excerpt">从 Conditional Types 到 Template Literal Types，掌握 TS 类型系统的精髓。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools -->
+    <section class="section" id="tools">
+        <div class="section-header reveal">
+            <div class="section-title-group">
+                <span class="section-number">02</span>
+                <h2 class="section-title">工具</h2>
+            </div>
+            <a href="#" class="section-link">查看全部 <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="tools-grid">
+            <div class="tool-card reveal reveal-delay-1" style="--card-accent: #2d6a4f; --card-accent-bg: rgba(45,106,79,0.07);">
+                <div class="tool-icon"><i data-lucide="palette"></i></div>
+                <h3 class="tool-name">Palette</h3>
+                <p class="tool-desc">智能配色方案生成器，支持多种色彩理论模型，一键导出 CSS 变量。</p>
+                <div class="tool-tags"><span class="tool-tag">CSS</span><span class="tool-tag">Canvas</span></div>
+            </div>
+            <div class="tool-card reveal reveal-delay-2" style="--card-accent: #457b9d; --card-accent-bg: rgba(69,123,157,0.07);">
+                <div class="tool-icon"><i data-lucide="file-code"></i></div>
+                <h3 class="tool-name">MarkEdit</h3>
+                <p class="tool-desc">所见即所得的 Markdown 编辑器，实时预览，支持自定义主题和快捷键。</p>
+                <div class="tool-tags"><span class="tool-tag">React</span><span class="tool-tag">CodeMirror</span></div>
+            </div>
+            <div class="tool-card reveal reveal-delay-3" style="--card-accent: #bc6c25; --card-accent-bg: rgba(188,108,37,0.07);">
+                <div class="tool-icon"><i data-lucide="terminal"></i></div>
+                <h3 class="tool-name">RegexLab</h3>
+                <p class="tool-desc">正则表达式可视化调试工具，实时匹配高亮，分组着色，常用模式收藏。</p>
+                <div class="tool-tags"><span class="tool-tag">TypeScript</span><span class="tool-tag">D3</span></div>
+            </div>
+            <div class="tool-card reveal reveal-delay-4" style="--card-accent: #7b2d6a; --card-accent-bg: rgba(123,45,106,0.07);">
+                <div class="tool-icon"><i data-lucide="code"></i></div>
+                <h3 class="tool-name">JSON Diff</h3>
+                <p class="tool-desc">JSON 格式化与深度对比工具，清晰标注增删改差异，支持大文件处理。</p>
+                <div class="tool-tags"><span class="tool-tag">Vanilla JS</span><span class="tool-tag">Diff</span></div>
+            </div>
+            <div class="tool-card reveal reveal-delay-5" style="--card-accent: #e76f51; --card-accent-bg: rgba(231,111,81,0.07);">
+                <div class="tool-icon"><i data-lucide="paintbrush"></i></div>
+                <h3 class="tool-name">SnapCSS</h3>
+                <p class="tool-desc">CSS 渐变、阴影、动画的可视化编辑器，拖拽调参，代码即时生成。</p>
+                <div class="tool-tags"><span class="tool-tag">Vue</span><span class="tool-tag">Canvas</span></div>
+            </div>
+            <div class="tool-card reveal reveal-delay-6" style="--card-accent: #264653; --card-accent-bg: rgba(38,70,83,0.07);">
+                <div class="tool-icon"><i data-lucide="git-branch"></i></div>
+                <h3 class="tool-name">GitGraph</h3>
+                <p class="tool-desc">Git 提交历史可视化工具，分支关系一目了然，支持导入仓库分析。</p>
+                <div class="tool-tags"><span class="tool-tag">D3</span><span class="tool-tag">WebGL</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutorials -->
+    <section class="section" id="tutorials">
+        <div class="section-header reveal">
+            <div class="section-title-group">
+                <span class="section-number">03</span>
+                <h2 class="section-title">教程</h2>
+            </div>
+            <a href="#" class="section-link">查看全部 <i data-lucide="arrow-right"></i></a>
+        </div>
+        <div class="tutorials-list">
+            <div class="tutorial-card reveal reveal-delay-1">
+                <span class="tutorial-number">01</span>
+                <div class="tutorial-info">
+                    <h3 class="tutorial-title">Three.js 从入门到实践</h3>
+                    <p class="tutorial-desc">系统学习 Three.js 核心概念，从基础几何体到着色器编程，完成三个实战项目。</p>
+                </div>
+                <span class="tutorial-badge badge-advanced">进阶</span>
+                <div class="tutorial-meta">
+                    <span class="tutorial-meta-item"><i data-lucide="layers"></i>12 章节</span>
+                    <span class="tutorial-meta-item"><i data-lucide="clock"></i>约 8 小时</span>
+                </div>
+            </div>
+            <div class="tutorial-card reveal reveal-delay-2">
+                <span class="tutorial-number">02</span>
+                <div class="tutorial-info">
+                    <h3 class="tutorial-title">从零搭建 Vite 插件</h3>
+                    <p class="tutorial-desc">深入 Vite 插件机制，手把手实现自定义插件，涵盖 HMR、虚拟模块等核心能力。</p>
+                </div>
+                <span class="tutorial-badge badge-intermediate">中级</span>
+                <div class="tutorial-meta">
+                    <span class="tutorial-meta-item"><i data-lucide="layers"></i>6 章节</span>
+                    <span class="tutorial-meta-item"><i data-lucide="clock"></i>约 3 小时</span>
+                </div>
+            </div>
+            <div class="tutorial-card reveal reveal-delay-3">
+                <span class="tutorial-number">03</span>
+                <div class="tutorial-info">
+                    <h3 class="tutorial-title">Node.js 流处理深度指南</h3>
+                    <p class="tutorial-desc">全面理解 Readable、Writable、Transform 流，掌握背压处理与管道组合。</p>
+                </div>
+                <span class="tutorial-badge badge-advanced">进阶</span>
+                <div class="tutorial-meta">
+                    <span class="tutorial-meta-item"><i data-lucide="layers"></i>8 章节</span>
+                    <span class="tutorial-meta-item"><i data-lucide="clock"></i>约 5 小时</span>
+                </div>
+            </div>
+            <div class="tutorial-card reveal reveal-delay-4">
+                <span class="tutorial-number">04</span>
+                <div class="tutorial-info">
+                    <h3 class="tutorial-title">CSS Grid 布局完全指南</h3>
+                    <p class="tutorial-desc">从基础概念到高级技巧，用大量实例掌握 CSS Grid 的所有核心能力。</p>
+                </div>
+                <span class="tutorial-badge badge-beginner">入门</span>
+                <div class="tutorial-meta">
+                    <span class="tutorial-meta-item"><i data-lucide="layers"></i>5 章节</span>
+                    <span class="tutorial-meta-item"><i data-lucide="clock"></i>约 2 小时</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner reveal">
+            <div>
+                <div class="footer-brand">墨白<span class="nav-logo-dot"></span></div>
+                <p class="footer-tagline">记录技术探索中的思考与感悟，<br>分享实用工具，沉淀体系化知识。</p>
+            </div>
+            <div>
+                <h4 class="footer-col-title">内容</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">全部文章</a></li>
+                    <li><a href="#" class="footer-link">工具集合</a></li>
+                    <li><a href="#" class="footer-link">教程系列</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">关于</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">关于我</a></li>
+                    <li><a href="#" class="footer-link">联系方式</a></li>
+                    <li><a href="#" class="footer-link">RSS 订阅</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">友链</h4>
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">示例友链 A</a></li>
+                    <li><a href="#" class="footer-link">示例友链 B</a></li>
+                    <li><a href="#" class="footer-link">示例友链 C</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 墨白 · All rights reserved</span>
+            <div class="footer-socials">
+                <a href="#" class="footer-social" aria-label="GitHub"><i data-lucide="github"></i></a>
+                <a href="#" class="footer-social" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                <a href="#" class="footer-social" aria-label="Email"><i data-lucide="mail"></i></a>
+                <a href="#" class="footer-social" aria-label="RSS"><i data-lucide="rss"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+        <i data-lucide="arrow-up"></i>
+    </button>
+
+    <script>
+        // Init Lucide icons
+        lucide.createIcons();
+
+        // Nav scroll effect
+        const nav = document.getElementById('nav');
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+            backToTop.classList.toggle('visible', window.scrollY > 600);
+        }, { passive: true });
+
+        // Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Back to top
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const id = link.getAttribute('href');
+                if (id === '#') return;
+                e.preventDefault();
+                const target = document.querySelector(id);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { getCollection } from 'astro:content';
+
+const tools = (await getCollection('tools'))
+  .filter((t) => !t.data.draft)
+  .sort((a, b) => a.id.localeCompare(b.id));
+---
+<BaseLayout title="工具集合" description="自研小工具：交互型打开即用，介绍型提供参考文档。" active="/tools/">
+  <div class="container">
+    <header class="page-header">
+      <div class="page-header-label">Tools</div>
+      <h1 class="page-header-title">工具集合</h1>
+      <p class="page-header-desc">自研的小工具。交互型（app）打开即用，介绍型（doc）提供参考文档。</p>
+    </header>
+
+    {tools.length > 0 ? (
+      <div class="tools-grid">
+        {tools.map((t, i) => (
+          <ToolCard tool={t} class={`reveal reveal-delay-${(i % 3) + 1}`} />
+        ))}
+      </div>
+    ) : (
+      <p class="empty-hint">还没有工具。</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .tools-grid { padding-bottom: clamp(3rem, 6vw, 5rem); }
+  .empty-hint { text-align: center; color: var(--text-muted); padding: 4rem 0; }
+</style>

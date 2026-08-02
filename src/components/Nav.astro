@@ -1,0 +1,39 @@
+---
+import Icons from './Icons.astro';
+import { SITE, NAV_LINKS } from '../consts';
+
+interface Props {
+  /** 当前激活的导航项 href，如 '/articles/' */
+  active?: string;
+}
+
+const { active = '' } = Astro.props;
+const base = SITE.base;
+---
+<nav class="nav" id="nav">
+  <a href={base + '/'} class="nav-logo">woody<span class="nav-logo-dot"></span></a>
+  <ul class="nav-links">
+    {NAV_LINKS.map((l) => (
+      <li>
+        <a href={base + l.href} class:list={['nav-link', { active: active === l.href }]}>
+          <Icons name={l.icon} size={15} /><span>{l.label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <div class="nav-actions">
+    <button class="nav-search" aria-label="搜索" title="站内搜索（敬请期待）">
+      <Icons name="search" size={16} />
+    </button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">
+      <Icons name="menu" size={20} />
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  {NAV_LINKS.map((l) => (
+    <a href={base + l.href} class="mobile-menu-link">
+      <Icons name={l.icon} size={18} />{l.label}
+    </a>
+  ))}
+</div>
