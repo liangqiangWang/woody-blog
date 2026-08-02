@@ -121,21 +121,6 @@ h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 600; line-height: 
 .nav-link.active::after { width: 100%; }
 .nav-link svg { width: 15px; height: 15px; }
 .nav-actions { display: flex; align-items: center; gap: 0.75rem; }
-.nav-search {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: transparent; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-sub);
-  transition: all var(--ease);
-}
-.nav-search:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-bg);
-}
-.nav-search svg { width: 16px; height: 16px; }
 .mobile-menu-btn {
   display: none;
   width: 36px; height: 36px;
